@@ -30,9 +30,9 @@ make -j $(nproc) TARGET=linux-glibc \
                 USE_OPENSSL=1 USE_ZLIB=1 USE_LUA=1 USE_PCRE=1 USE_SYSTEMD=1 && \
 make install
 
-mkdir -p /etc/haproxy                  && \
-mkdir -p /var/lib/haproxy               && \
-touch /var/lib/haproxy/stats             && \
+mkdir -p /etc/haproxy                        && \
+mkdir -p /var/lib/haproxy                     && \
+touch /var/lib/haproxy/stats                   && \
 ln -s /usr/local/sbin/haproxy /usr/sbin/haproxy && \
 cp $haproxynamedir/examples/haproxy.init /etc/init.d/haproxy && \
 chmod 755 /etc/init.d/haproxy   && \
