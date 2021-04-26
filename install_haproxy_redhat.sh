@@ -1,41 +1,44 @@
 #!/bin/bash
 
-haproxy_link="http://www.haproxy.org/download/2.2/src/haproxy-2.2.13.tar.gz"
+basedir="/opt"
 
-archive="haproxy-2.2.13.tar.gz"
+haproxyversion="2.2.13"
+haproxylink="http://www.haproxy.org/download/2.2/src/haproxy-$haproxyversion.tar.gz"
+haproxyarchive="haproxy-$haproxyversion.tar.gz"
+haproxynamedir="$basedir/haproxy-$haproxyversion"
 
-namedir="/opt/haproxy-2.2.13"
-
-
+luaversion="5.4.3"
+lualink="https://www.lua.org/ftp/lua-$luaversion.tar.gz"
+luaarchive="lua-$luaversion.tar.gz"
+luadir="$basedir/lua-$luaversion"
 
 
 dnf install gcc pcre-devel make openssl-devel systemd-devel -y
 
-wget -P /opt $haproxy_link
+wget -P $basedir $lualink               && \
+tar zxf $basedir/$luaarchive -C $basedir && \
+cd $luadir                                && \
+make all test                              && \
+make install
 
-tar -xvf /opt/$archive -C /opt && \
-cd $namedir             && \
-make clean               && \
+
+wget -P $basedir $haproxylink                && \
+tar -xvf $basedir/$haproxyarchive -C $basedir && \
+cd $haproxynamedir                             && \
+make clean                                      && \
 make -j $(nproc) TARGET=linux-glibc \
                 USE_OPENSSL=1 USE_ZLIB=1 USE_LUA=1 USE_PCRE=1 USE_SYSTEMD=1 && \
 make install
 
-mkdir -p /etc/haproxy 
-mkdir -p /var/lib/haproxy 
-touch /var/lib/haproxy/stats
-
-ln -s /usr/local/sbin/haproxy /usr/sbin/haproxy
-
-cp $namedir/examples/haproxy.init /etc/init.d/haproxy
-
-chmod 755 /etc/init.d/haproxy
-
-systemctl daemon-reload
-
-chkconfig haproxy on
-
-useradd -r haproxy
-
+mkdir -p /etc/haproxy                  && \
+mkdir -p /var/lib/haproxy               && \
+touch /var/lib/haproxy/stats             && \
+ln -s /usr/local/sbin/haproxy /usr/sbin/haproxy && \
+cp $haproxynamedir/examples/haproxy.init /etc/init.d/haproxy && \
+chmod 755 /etc/init.d/haproxy   && \
+systemctl daemon-reload          && \
+chkconfig haproxy on              && \
+useradd -r haproxy                 && \
 cat <<EOF > /etc/haproxy/haproxy.cfg
 global
    log /dev/log local0
@@ -62,14 +65,7 @@ frontend http_front
 
 backend http_back
    balance roundrobin
-   server server_name1 private_ip1:80 check
-   server server_name2 private_ip2:80 check
+   server server_name1 192.168.100.100:80 check
 EOF
 
 systemctl restart haproxy
-
-
-
-
-
-
