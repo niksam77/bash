@@ -13,7 +13,7 @@ dnf install gcc pcre-devel make openssl-devel systemd-devel -y
 
 wget -P /opt $haproxy_link
 
-tar -xvf /opt/$archive && \
+tar -xvf /opt/$archive -C /opt && \
 cd $namedir             && \
 make clean               && \
 make -j $(nproc) TARGET=linux-glibc \
