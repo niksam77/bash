@@ -68,5 +68,5 @@ backend http_back
    server server_name1 192.168.100.100:80 check
 EOF
 
-systemctl restart haproxy && /
+systemctl restart haproxy && \
 echo "COMPLETED!"
